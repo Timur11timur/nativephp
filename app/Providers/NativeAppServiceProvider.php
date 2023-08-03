@@ -2,8 +2,10 @@
 
 namespace App\Providers;
 
+use App\Events\MyEvent;
 use Native\Laravel\Facades\ContextMenu;
 use Native\Laravel\Facades\Dock;
+use Native\Laravel\Facades\MenuBar;
 use Native\Laravel\Facades\Window;
 use Native\Laravel\Facades\GlobalShortcut;
 use Native\Laravel\Menu\Menu;
@@ -16,22 +18,35 @@ class NativeAppServiceProvider
      */
     public function boot(): void
     {
+        MenuBar::create()
+            //->route('about')
+            ->width(300)
+            ->height(300)
+            ->showDockIcon();
+
         Menu::new()
             ->appMenu()
-            ->submenu('About', Menu::new()
+            ->editMenu()
+            ->viewMenu()
+            ->windowMenu()
+            ->submenu('My About', Menu::new()
                 ->link('https://beyondco.de', 'Beyond Code')
                 ->link('https://simonhamp.me', 'Simon Hamp')
-            )
-            ->submenu('View', Menu::new()
+                ->separator()
                 ->toggleFullscreen()
                 ->separator()
-                ->link('https://laravel.com', 'Learn More', 'CmdOrCtrl+L')
+                ->label('My label')
+                ->event(MyEvent::class, 'Trigger my event', 'CmdOrCtrl+Shift+D')
             )
             ->register();
 
         Window::open()
-            ->width(800)
-            ->height(800);
+            ->width(400)
+            ->height(400)
+            ->showDevTools(false)
+            ->rememberState();
+
+
 
         /**
             Dock::menu(
